@@ -14,7 +14,8 @@ module PgSearch
 
     def apply(scope)
       scope = include_table_aliasing_for_rank(scope)
-      rank_table_alias = scope.pg_search_rank_table_alias(:include_counter)
+      rank_table_alias = scope.pg_search_rank_table_alias(:include_counter,
+                                                          config.scope_name)
 
       scope
         .joins(rank_join(rank_table_alias))
@@ -58,16 +59,18 @@ module PgSearch
     end
 
     module WithPgSearchRank
-      def with_pg_search_rank
+      def with_pg_search_rank(scope_name)
         scope = self
         scope = scope.select("#{table_name}.*") unless scope.select_values.any?
-        scope.select("#{pg_search_rank_table_alias}.rank AS pg_search_rank")
+        scope_alias = pg_search_rank_table_alias(false, scope_name)
+        scope.select("#{scope_alias}.rank AS pg_search_rank")
       end
     end
 
     module PgSearchRankTableAliasing
-      def pg_search_rank_table_alias(include_counter = false)
-        components = [arel_table.name]
+      def pg_search_rank_table_alias(include_counter = false,
+                                     scope_name = nil)
+        components = [arel_table.name, scope_name]
         if include_counter
           count = pg_search_scope_application_count_plus_plus
           components << count if count > 0

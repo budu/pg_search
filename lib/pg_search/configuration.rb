@@ -4,11 +4,12 @@ require "pg_search/configuration/foreign_column"
 
 module PgSearch
   class Configuration
-    attr_reader :model
+    attr_reader :model, :scope_name
 
     def initialize(options, model)
       @options = default_options.merge(options)
       @model = model
+      @scope_name = options[:scope_name]
 
       assert_valid_options(@options)
     end
@@ -84,7 +85,7 @@ module PgSearch
     end
 
     VALID_KEYS = %w[
-      against ranked_by ignoring using query associated_against order_within_rank
+      against ranked_by ignoring using query associated_against order_within_rank scope_name
     ].map(&:to_sym)
 
     VALID_VALUES = {
