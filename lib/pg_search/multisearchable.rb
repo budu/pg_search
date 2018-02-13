@@ -53,7 +53,8 @@ module PgSearch
     def create_or_update_pg_search_document
       if !pg_search_document
         create_pg_search_document(pg_search_document_attrs)
-      elsif should_update_pg_search_document?
+      elsif should_update_pg_search_document? &&
+            !pg_search_document.destroyed?
         pg_search_document.update_attributes(pg_search_document_attrs)
       end
     end
